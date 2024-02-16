@@ -5,12 +5,12 @@
     "AJAX",
     "HTML"
   ],
-  "version": "1.9.7",
+  "version": "1.9.10",
   "homepage": "https://htmx.org/",
   "bugs": {
     "url": "https://github.com/bigskysoftware/htmx/issues"
   },
-  "license": "BSD 2-Clause",
+  "license": "0BSD",
   "files": [
     "LICENSE",
     "README.md",
@@ -23,7 +23,6 @@
   "main": "dist/htmx.min.js",
   "types": "dist/htmx.d.ts",
   "unpkg": "dist/htmx.min.js",
-  "type": "module",
   "web-types": "editors/jetbrains/htmx.web-types.json",
   "scripts": {
     "test": "mocha-chrome test/index.html",
