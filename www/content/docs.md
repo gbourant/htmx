@@ -114,7 +114,13 @@ The fastest way to get going with htmx is to load it via a CDN. You can simply a
 and get going:
 
 ```html
-<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+```
+
+Unminified version is also available
+
+```html
+<script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.js" integrity="sha384-qbtR4rS9RrUMECUWDWM2+YGgN3U4V4ZncZ0BvUcg9FGct0jqXz3PUdVpU1p0yrXS" crossorigin="anonymous"></script>
 ```
 
 While the CDN approach is extremely simple, you may want to consider [not using CDNs in production](https://blog.wesleyac.com/posts/why-not-javascript-cdn).
@@ -421,9 +427,9 @@ with any of the following values:
 | `innerHTML` | the default, puts the content inside the target element
 | `outerHTML` | replaces the entire target element with the returned content
 | `afterbegin` | prepends the content before the first child inside the target
-| `beforebegin` | prepends the content before the target in the targets parent element
+| `beforebegin` | prepends the content before the target in the target's parent element
 | `beforeend` | appends the content after the last child inside the target
-| `afterend` | appends the content after the target in the targets parent element
+| `afterend` | appends the content after the target in the target's parent element
 | `delete` | deletes the target element regardless of the response
 | `none` | does not append content from response ([Out of Band Swaps](#oob_swaps) and [Response Headers](#response-headers) will still be processed)
 
@@ -479,7 +485,7 @@ The modifiers available on `hx-swap` are:
 | `settle`      | The settle delay to use (e.g. `100ms`) between when new content is inserted and when it is settled       |
 | `ignoreTitle` | If set to `true`, any title found in the new content will be ignored and not update the document title   |
 | `scroll`      | `top` or `bottom`, will scroll the target element to its top or bottom                                   |
-| `show`        | `top` or `bottom`, will scroll the target elements top or bottom into view                               |
+| `show`        | `top` or `bottom`, will scroll the target element's top or bottom into view                               |
 
 All swap modifiers appear after the swap style is specified, and are colon-separated.
 
@@ -488,7 +494,7 @@ See the [hx-swap](@/attributes/hx-swap.md) documentation for more details on the
 ### Synchronization {#synchronization}
 
 Often you want to coordinate the requests between two elements.  For example, you may want a request from one element
-to supersede the request of another element, or to wait until the other elements request has finished.
+to supersede the request of another element, or to wait until the other element's request has finished.
 
 htmx offers a [`hx-sync`](@/attributes/hx-sync.md) attribute to help you accomplish this.
 
@@ -735,7 +741,7 @@ The anchor tag in this div will issue an AJAX `GET` request to `/blog` and swap 
 A feature of `hx-boost` is that it degrades gracefully if javascript is not enabled: the links and forms continue
 to work, they simply don't use ajax requests.  This is known as
 [Progressive Enhancement](https://developer.mozilla.org/en-US/docs/Glossary/Progressive_Enhancement), and it allows
-a wider audience to use your sites functionality.
+a wider audience to use your site's functionality.
 
 Other htmx patterns can be adapted to achieve progressive enhancement as well, but they will require more thought.
 
@@ -874,6 +880,41 @@ attribute to specify a different one.
 
 Careful: this element will need to be on all pages or restoring from history won't work reliably.
 
+### Undoing DOM Mutations By 3rd Party Libraries
+
+If you are using a 3rd party library and want to use the htmx history feature, you will need to clean up the DOM before
+a snapshot is taken.  Let's consider the [Tom Select](https://tom-select.js.org/) library, which makes select elements
+a much richer user experience.  Let's set up TomSelect to turn any input element with the `.tomselect` class into a rich
+select element.
+
+First we need to initialize elements that have the class in new content:
+
+```javascript
+htmx.onLoad(function (target) {
+    // find all elements in the new content that should be
+    // an editor and init w/ quill
+    var editors = target.querySelectorAll(".tomselect")
+            .forEach(elt => new TomSelect(elt))
+});
+```
+
+This will create a rich selector for all input elements that have the `.tomselect` class on it.  However, it mutates
+the DOM and we don't want that mutation saved to the history cache, since TomSelect will be reinitialized when the
+history content is loaded back into the screen.
+
+To deal with this, we need to catch the `htmx:beforeHistorySave` event and clean out the TomSelect mutations by calling
+`destroy()` on them:
+
+```javascript
+htmx.on('htmx:beforeHistorySave', function() {
+    // find all TomSelect elements
+    document.querySelectorAll('.tomSelect')
+            .forEach(elt => elt.tomselect.destroy()) // and call destroy() on them
+})
+```
+
+This will revert the DOM to the original HTML, thus allowing for a clean snapshot.
+
 ### Disabling History Snapshots
 
 History snapshotting can be disabled for a URL by setting the [hx-history](@/attributes/hx-history.md) attribute to `false`
@@ -973,7 +1014,7 @@ WebSocket sends.
 
 Htmx fires events around validation that can be used to hook in custom validation and error handling:
 
-* `htmx:validation:validate` - called before an elements `checkValidity()` method is called.  May be used to add in
+* `htmx:validation:validate` - called before an element's `checkValidity()` method is called.  May be used to add in
    custom validation logic
 * `htmx:validation:failed` - called when `checkValidity()` returns false, indicating an invalid input
 * `htmx:validation:halted` - called when a request is not issued due to validation errors.  Specific errors may be found
@@ -993,7 +1034,7 @@ Here is an example of an input that uses the [`hx-on`](/attributes/hx-on) attrib
            onkeyup="this.setCustomValidity('') // reset the validation on keyup"
            hx-on:htmx:validation:validate="if(this.value != 'foo') {
                     this.setCustomValidity('Please enter the value foo') // set the validation error
-                    htmx.find('#foo-form').reportValidity()              // report the issue
+                    htmx.find('#example-form').reportValidity()          // report the issue
                 }">
 </form>
 ```
@@ -1002,7 +1043,7 @@ Note that all client side validations must be re-done on the server side, as the
 
 ## Animations
 
-Htmx allows you to use [CSS transitions](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions)
+Htmx allows you to use [CSS transitions](#css_transitions)
 in many situations using only HTML and CSS.
 
 Please see the [Animation Guide](@/examples/animations.md) for more details on the options available.
@@ -1558,16 +1599,21 @@ listed below:
 | `htmx.config.allowEval`               | defaults to `true`, can be used to disable htmx's use of eval for certain features (e.g. trigger filters)                                                                  |
 | `htmx.config.allowScriptTags`         | defaults to `true`, determines if htmx will process script tags found in new content                                                                                       |
 | `htmx.config.inlineScriptNonce`       | defaults to `''`, meaning that no nonce will be added to inline scripts                                                                                                    |
+| `htmx.config.attributesToSettle`      | defaults to `["class", "style", "width", "height"]`, the attributes to settle during the settling phase                                                                    |
 | `htmx.config.useTemplateFragments`    | defaults to `false`, HTML template tags for parsing content from the server (not IE11 compatible!)                                                                         |
 | `htmx.config.wsReconnectDelay`        | defaults to `full-jitter`                                                                                                                                                  |
-| `htmx.config.disableSelector`         | defaults to `[disable-htmx], [data-disable-htmx]`, htmx will not process elements with this attribute on it or a parent                                                    |
-| `htmx.config.timeout`                 | defaults to 0 in milliseconds                                                                                                                                              |
+| `htmx.config.wsBinaryType`            | defaults to `blob`, the [the type of binary data](https://developer.mozilla.org/docs/Web/API/WebSocket/binaryType) being received over the WebSocket connection            |
+| `htmx.config.disableSelector`         | defaults to `[hx-disable], [data-hx-disable]`, htmx will not process elements with this attribute on it or a parent                                                        |
+| `htmx.config.withCredentials`         | defaults to `false`, allow cross-site Access-Control requests using credentials such as cookies, authorization headers or TLS client certificates                          |
+| `htmx.config.timeout`                 | defaults to 0, the number of milliseconds a request can take before automatically being terminated                                                                         |
+| `htmx.config.scrollBehavior`          | defaults to 'smooth', the behavior for a boosted link on page transitions. The allowed values are `auto` and `smooth`. Smooth will smoothscroll to the top of the page while auto will behave like a vanilla link.      |
 | `htmx.config.defaultFocusScroll`      | if the focused element should be scrolled into view, defaults to false and can be overridden using the [focus-scroll](@/attributes/hx-swap.md#focus-scroll) swap modifier. |
-| `htmx.config.getCacheBusterParam`     | defaults to false, if set to true htmx will include a cache-busting parameter in `GET` requests to avoid caching partial responses by the browser                          |
+| `htmx.config.getCacheBusterParam`     | defaults to false, if set to true htmx will append the target element to the `GET` request in the format `org.htmx.cache-buster=targetElementId`                           |
 | `htmx.config.globalViewTransitions`   | if set to `true`, htmx will use the [View Transition](https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API) API when swapping in new content.             |
-| `htmx.config.methodsThatUseUrlParams` | defaults to `["get"]`, htmx will format requests with this method by encoding their parameters in the URL, not the request body                                            |
+| `htmx.config.methodsThatUseUrlParams` | defaults to `["get"]`, htmx will format requests with these methods by encoding their parameters in the URL, not the request body                                          |
 | `htmx.config.selfRequestsOnly`        | defaults to `false`, if set to `true` will only allow AJAX requests to the same domain as the current document                                                             |
 | `htmx.config.ignoreTitle`             | defaults to `false`, if set to `true` htmx will not update the title of the document when a `title` tag is found in new content                                            |
+| `htmx.config.scrollIntoViewOnBoost`   | defaults to `true`, whether or not the target of a boosted element is scrolled into the viewport. If `hx-target` is omitted on a boosted element, the target defaults to `body`, causing the page to scroll to the top. |
 | `htmx.config.triggerSpecsCache`       | defaults to `null`, the cache to store evaluated trigger specifications into, improving parsing performance at the cost of more memory usage. You may define a simple object to use a never-clearing cache, or implement your own system using a [proxy object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Proxy) |
 
 </div>

@@ -24,6 +24,7 @@ page_template = "essay.html"
 * [The API Churn/Security Trade-off](https://intercoolerjs.org/2016/02/17/api-churn-vs-security.html)
 * [Does Hypermedia Scale?](@/essays/does-hypermedia-scale.md)
 * [SPA Alternative](@/essays/spa-alternative.md)
+* [htmx sucks](@/essays/htmx-sucks.md)
 
 ### Building Hypermedia Applications
 * [A Real World React to htmx Port](@/essays/a-real-world-react-to-htmx-port.md)
@@ -44,6 +45,15 @@ page_template = "essay.html"
 * [Why htmx Does Not Have a Build Step](@/essays/no-build-step.md)
 * [Is htmx Just Another JavaScript Framework?](@/essays/is-htmx-another-javascript-framework.md)
 * [htmx Implementation Deep Dive (Video)](https://www.youtube.com/watch?v=javGxN-h9VQ)
+
+### Hypermedia History
+
+* [A File Structure For The Complex, The Changing and the Indeterminate (Ted Nelson, 1965)](https://dl.acm.org/doi/pdf/10.1145/800197.806036)
+* [The Mother Of All Demos (Doug Englebart, 1968)](https://www.youtube.com/watch?v=B6rKUf9DWRI)
+* [The First Web Page (1991)](http://info.cern.ch/hypertext/WWW/TheProject.html)
+* [Architectural Styles and the Design of Network-based Software Architectures (Roy Fielding, 2000)](https://ics.uci.edu/~fielding/pubs/dissertation/top.htm)
+* [State of the Art Review on Hypermedia Issues and Applications (2006)](https://paul.luon.net/hypermedia/index.html) [[archive]](https://web.archive.org/web/20240428215142/https://paul.luon.net/hypermedia/index.html)
+* [Interview: Henning Koch, Creator of Unpoly](@/essays/interviews/henning_koch.md)
 
 ## Banners
 <div style="text-align: center;margin:32px">
